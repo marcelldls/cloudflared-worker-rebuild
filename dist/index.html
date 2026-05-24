@@ -4,12 +4,103 @@
 <head>
   <meta charset='utf-8' />
   <script src='/index.global.js'></script>
+  <style>
+    /* Base calendar styling overrides */
+    .fc-event {
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    /* Classification Styles (Tags) */
+    .class-medical {
+      background-color: #e3f2fd !important;
+      border-left: 4px solid #1e88e5 !important;
+      color: #0d47a1 !important;
+    }
+
+    .class-business {
+      background-color: #ede7f6 !important;
+      border-left: 4px solid #5e35b1 !important;
+      color: #4a148c !important;
+    }
+
+    .class-personal {
+      background-color: #e8f5e9 !important;
+      border-left: 4px solid #43a047 !important;
+      color: #1b5e20 !important;
+    }
+  </style>
   <script>
 
     document.addEventListener('DOMContentLoaded', function () {
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth'
+        initialView: 'dayGridMonth',
+        events: [
+          {
+            title: 'All Day Event',
+            start: '2026-05-01'
+          },
+          {
+            title: 'Long Event',
+            start: '2026-05-07',
+            end: '2026-05-10'
+          },
+          {
+            groupId: '999',
+            title: 'Repeating Event',
+            start: '2026-05-09T16:00:00'
+          },
+          {
+            groupId: '999',
+            title: 'Repeating Event',
+            start: '2026-05-16T16:00:00'
+          },
+          {
+            title: 'Conference',
+            start: '2026-05-11',
+            end: '2026-05-13'
+          },
+          {
+            title: 'Meeting',
+            start: '2026-05-12T10:30:00',
+            end: '2026-05-12T12:30:00'
+          },
+          {
+            title: 'Lunch',
+            start: '2026-05-12T12:00:00'
+          },
+          {
+            title: 'Meeting',
+            start: '2026-05-12T14:30:00'
+          },
+          {
+            title: 'Birthday Party',
+            start: '2026-05-13T07:00:00'
+          },
+          {
+            title: 'Click for Google',
+            url: 'https://google.com/',
+            start: '2026-05-28'
+          },
+          {
+            title: 'Dentist Checkup',
+            start: '2026-05-25T10:00:00',
+            end: '2026-05-25T11:30:00',
+            className: 'class-medical'
+          },
+          {
+            title: 'Quarterly Board Meeting',
+            start: '2026-05-27T14:00:00',
+            end: '2026-05-27T16:00:00',
+            className: 'class-business'
+          },
+          {
+            title: 'Dinner with Parents',
+            start: '2026-05-29T19:00:00',
+            className: 'class-personal'
+          }
+        ]
       });
       calendar.render();
     });
