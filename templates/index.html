@@ -125,36 +125,39 @@
       });
 
       window.filterEvents = function () {
-        // Find all checked tag values
-        const activeTags = Array.from(document.querySelectorAll('.dropdown-container input:checked')).map(el => el.value);
+        // 1. Get an array of all currently checked tag values from the dropdown
+        const activeTags = Array.from(document.querySelectorAll('.dropdown-container input:checked'))
+          .map(el => el.value);
 
-        // Loop through all rendered list event rows
+        // Define our known classification system tags
+        const knownTags = ['class-medical', 'class-business', 'class-personal'];
+
+        // 2. Loop through all rendered calendar event rows
         document.querySelectorAll('.fc-list-event').forEach(row => {
-          // Check if row has any of the classification classes
-          const hasMedical = row.classList.contains('class-medical');
-          const hasBusiness = row.classList.contains('class-business');
-          const hasPersonal = row.classList.contains('class-personal');
+          // Collect all known tags that are actually applied to this specific event row
+          const appliedTags = knownTags.filter(tag => row.classList.contains(tag));
 
-          // Determine if this row belongs to any tag category
-          let rowTag = null;
-          if (hasMedical) rowTag = 'class-medical';
-          if (hasBusiness) rowTag = 'class-business';
-          if (hasPersonal) rowTag = 'class-personal';
+          let shouldShow = true;
 
-          // If an event has a custom tag category and that category is unchecked, hide it
-          if (rowTag && !activeTags.includes(rowTag)) {
-            row.classList.add('hidden-event');
-          } else {
+          // If the event has tags, it must match at least one active filter to stay visible
+          if (appliedTags.length > 0) {
+            shouldShow = appliedTags.some(tag => activeTags.includes(tag));
+          }
+
+          // Apply or remove your hidden-event style class
+          if (shouldShow) {
             row.classList.remove('hidden-event');
+          } else {
+            row.classList.add('hidden-event');
           }
         });
 
-        // Clean up orphan list day headers that have no active events visible under them
+        // 3. Clean up empty list day headers that have no visible events left under them
         document.querySelectorAll('.fc-list-day').forEach(dayHeader => {
           let nextEl = dayHeader.nextElementSibling;
           let hasVisibleEvents = false;
 
-          // Scan forward through sister element rows until hitting the next day block
+          // Scan forward through following rows until hitting the next day block container
           while (nextEl && nextEl.classList.contains('fc-list-event')) {
             if (!nextEl.classList.contains('hidden-event')) {
               hasVisibleEvents = true;
@@ -163,7 +166,7 @@
             nextEl = nextEl.nextElementSibling;
           }
 
-          // Hide or reveal the header container row
+          // Hide or show the day header row safely
           if (hasVisibleEvents) {
             dayHeader.style.setProperty('display', '', 'important');
           } else {
@@ -171,7 +174,7 @@
           }
         });
 
-        // Forces FullCalendar view layer wrapper to recompute sizing bounds
+        // 4. Force FullCalendar layout engine to update view bounds
         if (calendar && calendar.updateSize) {
           calendar.updateSize();
         }
