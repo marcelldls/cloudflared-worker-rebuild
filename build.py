@@ -12,7 +12,7 @@ def fetch_and_build():
         rmtree(TARGET)
     TARGET.mkdir()
     copy2(DEPS / "index.global.js", TARGET / "index.global.js")
-    copy2(TARGET / "index.html", TARGET / "index.html")
+    copy2(TEMPLATES / "index.html", TARGET / "index.html")
 
 
 if __name__ == "__main__":
