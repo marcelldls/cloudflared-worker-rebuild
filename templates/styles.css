@@ -158,6 +158,10 @@ body {
     background-color: #f3f4f6 !important;
 }
 
+.fc-list-event {
+    background-color: #ffffff !important;
+}
+
 .fc-list-event.hidden-event {
     display: none !important;
 }
