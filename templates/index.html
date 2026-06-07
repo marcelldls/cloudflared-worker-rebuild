@@ -11,7 +11,7 @@
       // 1. Raw Event Data Source
       const eventData = [
         { title: 'All Day Event', start: '2026-05-01', classNames: ['class-medical', 'class-personal'] },
-        { title: 'Long Event', start: '2026-05-07', end: '2026-05-10', classNames: ['class-personal'] },
+        { title: 'Long Event', start: '2026-05-07', end: '2026-05-10', classNames: ['class-test'] },
         { groupId: '999', title: 'Repeating Event', start: '2026-05-09T16:00:00' },
         { groupId: '999', title: 'Repeating Event', start: '2026-05-16T16:00:00' },
         { title: 'Conference', start: '2026-05-11', end: '2026-05-13', classNames: ['class-business', 'class-personal'] },
@@ -25,18 +25,47 @@
         { title: 'Dinner with Parents', start: '2026-05-29T19:00:00', classNames: ['class-personal', 'class-medical'] }
       ];
 
-      // Helper function to format labels dynamically
+      // 2. Pre-defined Standardised Non-Intrusive Palettes (bg, border, text)
+      const colorPalettes = [
+        { bg: '#e3f2fd', border: '#1e88e5', text: '#0d47a1' }, // Blue (Medical)
+        { bg: '#ede7f6', border: '#5e35b1', text: '#4a148c' }, // Purple (Business)
+        { bg: '#e8f5e9', border: '#43a047', text: '#1b5e20' }, // Green (Personal)
+        { bg: '#fff3e0', border: '#fb8c00', text: '#e65100' }, // Orange (Fallback 1)
+        { bg: '#fce4ec', border: '#d81b60', text: '#880e4f' }, // Pink (Fallback 2)
+        { bg: '#e0f7fa', border: '#00acc1', text: '#006064' }, // Cyan (Fallback 3)
+        { bg: '#f1f8e9', border: '#7cb342', text: '#33691e' }  // Light Green (Fallback 4)
+      ];
+
+      // Clean text tags dynamically ("class-medical" -> "Medical")
       function formatLabel(className) {
         if (!className) return '';
         return className.replace('class-', '').replace(/^\w/, c => c.toUpperCase());
       }
 
-      // 2. Extract Unique Tags Safely
+      // 3. Extract Unique Tags Safely
       const uniqueTags = Array.from(
         new Set(eventData.flatMap(evt => evt.classNames || []))
       ).filter(Boolean);
 
-      // 3. Define the Filter Function Early (so dropdown events can call it)
+      // 4. Generate Dynamic CSS Styles & Inject them into <head>
+      const styleEl = document.createElement('style');
+      let dynamicStyles = '';
+
+      uniqueTags.forEach((tag, index) => {
+        // Cycle through palettes sequentially if tags exceed palette count
+        const palette = colorPalettes[index % colorPalettes.length];
+        dynamicStyles += `
+          .${tag} {
+            background-color: ${palette.bg} !important;
+            border: 1px solid ${palette.border} !important;
+            color: ${palette.text} !important;
+          }
+        `;
+      });
+      styleEl.innerHTML = dynamicStyles;
+      document.head.appendChild(styleEl);
+
+      // 5. Define Filter Logic
       function filterEvents() {
         const checkedInputs = Array.from(document.querySelectorAll('.dropdown-container input:checked'));
         const activeTags = checkedInputs.map(el => el.value);
@@ -56,7 +85,7 @@
           }
         });
 
-        // Toggle day headers based on event visibility
+        // Handle empty day headers
         document.querySelectorAll('.fc-list-day').forEach(dayHeader => {
           let nextEl = dayHeader.nextElementSibling;
           let hasVisibleEvents = false;
@@ -81,10 +110,9 @@
         }
       }
 
-      // Expose to window fallback safely if needed by inline handlers
       window.filterEvents = filterEvents;
 
-      // 4. Generate Filter Dropdown Elements
+      // 6. Generate Filter Dropdown Layout
       const dropdownContainer = document.getElementById('filterDropdown');
       if (dropdownContainer) {
         dropdownContainer.innerHTML = '';
@@ -101,7 +129,7 @@
         });
       }
 
-      // 5. Initialise FullCalendar
+      // 7. Initialize FullCalendar
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'listMonth',
@@ -161,7 +189,7 @@
         events: eventData
       });
 
-      // 6. UI Dropdown Controls
+      // 8. Toggle Dropdown Window Setup
       window.toggleDropdown = function (event) {
         event.stopPropagation();
         dropdownContainer.classList.toggle('show');
@@ -174,7 +202,6 @@
         }
       });
 
-      // Re-trigger visual filter passes whenever dates or months jump
       calendar.on('datesSet', function () {
         setTimeout(filterEvents, 0);
       });

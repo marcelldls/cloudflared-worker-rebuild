@@ -123,25 +123,6 @@ body {
     display: inline-block;
 }
 
-/* Standardised non-intrusive tag designs */
-.class-medical {
-    background-color: #e3f2fd;
-    border: 1px solid #1e88e5;
-    color: #0d47a1;
-}
-
-.class-business {
-    background-color: #ede7f6;
-    border: 1px solid #5e35b1;
-    color: #4a148c;
-}
-
-.class-personal {
-    background-color: #e8f5e9;
-    border: 1px solid #43a047;
-    color: #1b5e20;
-}
-
 /* Removed all old row overrides to keep default layout styling */
 .fc-header-toolbar {
     position: sticky;
