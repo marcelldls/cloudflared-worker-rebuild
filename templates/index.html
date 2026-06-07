@@ -8,6 +8,50 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      // 1. Centralized Event Data Source
+      const eventData = [
+        { title: 'All Day Event', start: '2026-05-01', classNames: ['class-medical', 'class-personal'] },
+        { title: 'Long Event', start: '2026-05-07', end: '2026-05-10', classNames: ['class-personal'] },
+        { groupId: '999', title: 'Repeating Event', start: '2026-05-09T16:00:00' },
+        { groupId: '999', title: 'Repeating Event', start: '2026-05-16T16:00:00' },
+        { title: 'Conference', start: '2026-05-11', end: '2026-05-13', classNames: ['class-business', 'class-personal'] },
+        { title: 'Meeting', start: '2026-05-12T10:30:00', end: '2026-05-12T12:30:00' },
+        { title: 'Lunch', start: '2026-05-12T12:00:00' },
+        { title: 'Meeting', start: '2026-05-12T14:30:00' },
+        { title: 'Birthday Party', start: '2026-05-13T07:00:00' },
+        { title: 'Click for Google', url: 'https://google.com', start: '2026-05-28' },
+        { title: 'Dentist Checkup', start: '2026-05-25T10:00:00', end: '2026-05-25T11:30:00', classNames: ['class-medical'] },
+        { title: 'Quarterly Board Meeting', start: '2026-05-27T14:00:00', end: '2026-05-27T16:00:00', classNames: ['class-business'] },
+        { title: 'Dinner with Parents', start: '2026-05-29T19:00:00', classNames: ['class-personal', 'class-medical'] }
+      ];
+
+      // Helper function to clean text tags dynamically ("class-medical" -> "Medical")
+      function formatLabel(className) {
+        return className.replace('class-', '').replace(/^\w/, c => c.toUpperCase());
+      }
+
+      // 2. Extract unique non-empty tags from event classes
+      const uniqueTags = Array.from(
+        new Set(eventData.flatMap(evt => evt.classNames || []))
+      ).filter(Boolean);
+
+      // 3. Build UI filtering checkbox menus dynamically
+      const dropdownContainer = document.getElementById('filterDropdown');
+      dropdownContainer.innerHTML = '';
+
+      uniqueTags.forEach(tag => {
+        const labelText = formatLabel(tag);
+        const labelEl = document.createElement('label');
+        labelEl.className = 'dropdown-item';
+        labelEl.innerHTML = `
+          <input type="checkbox" value="${tag}" checked>
+          <span class="badge ${tag}">${labelText}</span>
+        `;
+        // Bind dynamic element event listeners
+        labelEl.querySelector('input').addEventListener('change', filterEvents);
+        dropdownContainer.appendChild(labelEl);
+      });
+
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'listMonth',
@@ -23,49 +67,35 @@
           externalLink: {
             text: 'Full Screen',
             click: function () {
-              window.top.location.href = 'https://calender.marcelldls.lol';
+              window.top.location.href = 'https://marcelldls.lol';
             }
           }
         },
-        // Ensures classes are attached directly to DOM rows for the filtering system
         eventClassNames: function (arg) {
-          if (arg.event.classNames && arg.event.classNames.length) {
-            return arg.event.classNames;
-          }
-          return [];
+          return arg.event.classNames || [];
         },
-        // Remaps the event element to strip full-row colors and render text tags inline instead
         eventContent: function (arg) {
           const titleText = arg.event.title;
           const classes = arg.event.classNames || [];
 
-          // Create a wrapper element for the text title
           const titleEl = document.createElement('span');
           titleEl.classList.add('fc-list-event-title-text');
           titleEl.innerText = titleText;
 
-          // Base block container
           const wrapEl = document.createElement('div');
           wrapEl.style.display = 'inline-block';
           wrapEl.appendChild(titleEl);
 
-          // Render explicit layout badges inline next to the text title if tags exist
           if (classes.length > 0) {
             const tagsContainer = document.createElement('span');
             tagsContainer.classList.add('fc-tags-container');
 
             classes.forEach(cls => {
-              let label = '';
-              if (cls === 'class-medical') label = 'Medical';
-              if (cls === 'class-business') label = 'Business';
-              if (cls === 'class-personal') label = 'Personal';
-
-              if (label) {
-                const badge = document.createElement('span');
-                badge.className = `badge ${cls}`;
-                badge.innerText = label;
-                tagsContainer.appendChild(badge);
-              }
+              const label = formatLabel(cls);
+              const badge = document.createElement('span');
+              badge.className = `badge ${cls}`;
+              badge.innerText = label;
+              tagsContainer.appendChild(badge);
             });
             wrapEl.appendChild(tagsContainer);
           }
@@ -78,103 +108,36 @@
             window.open(info.event.url, '_blank');
           }
         },
-        events: [
-          {
-            title: 'All Day Event',
-            start: '2026-05-01',
-            classNames: ['class-medical', 'class-personal']
-          },
-          {
-            title: 'Long Event',
-            start: '2026-05-07',
-            end: '2026-05-10',
-            classNames: ['class-personal']
-          },
-          {
-            groupId: '999',
-            title: 'Repeating Event',
-            start: '2026-05-09T16:00:00'
-          },
-          {
-            groupId: '999',
-            title: 'Repeating Event',
-            start: '2026-05-16T16:00:00'
-          },
-          {
-            title: 'Conference',
-            start: '2026-05-11',
-            end: '2026-05-13',
-            classNames: ['class-business', 'class-personal']
-          },
-          {
-            title: 'Meeting',
-            start: '2026-05-12T10:30:00',
-            end: '2026-05-12T12:30:00'
-          },
-          {
-            title: 'Lunch',
-            start: '2026-05-12T12:00:00'
-          },
-          {
-            title: 'Meeting',
-            start: '2026-05-12T14:30:00'
-          },
-          {
-            title: 'Birthday Party',
-            start: '2026-05-13T07:00:00'
-          },
-          {
-            title: 'Click for Google',
-            url: 'https://google.com/',
-            start: '2026-05-28'
-          },
-          {
-            title: 'Dentist Checkup',
-            start: '2026-05-25T10:00:00',
-            end: '2026-05-25T11:30:00',
-            classNames: ['class-medical']
-          },
-          {
-            title: 'Quarterly Board Meeting',
-            start: '2026-05-27T14:00:00',
-            end: '2026-05-27T16:00:00',
-            classNames: ['class-business']
-          },
-          {
-            title: 'Dinner with Parents',
-            start: '2026-05-29T19:00:00',
-            classNames: ['class-personal', 'class-medical']
-          }
-        ]
+        events: eventData
       });
 
-      // Drops down or collapses multi-select checkbox menu container layout boxes
       window.toggleDropdown = function (event) {
         event.stopPropagation();
-        document.getElementById('filterDropdown').classList.toggle('show');
+        dropdownContainer.classList.toggle('show');
       };
 
-      // Closes open popups safely if clicking active viewport white space areas
       document.addEventListener('click', function (event) {
-        const dropdown = document.getElementById('filterDropdown');
         const container = document.querySelector('.dropdown-container');
-        if (dropdown && !container.contains(event.target)) {
-          dropdown.classList.remove('show');
+        if (dropdownContainer && !container.contains(event.target)) {
+          dropdownContainer.classList.remove('show');
         }
       });
 
-      // Iterates through views filtering tags or cleanup actions
+      // 4. Dynamic filtering action block
       window.filterEvents = function () {
-        const activeTags = Array.from(document.querySelectorAll('.dropdown-container input:checked')).map(el => el.value);
-        const knownTags = ['class-medical', 'class-business', 'class-personal'];
+        const checkedInputs = Array.from(document.querySelectorAll('.dropdown-container input:checked'));
+        const activeTags = checkedInputs.map(el => el.value);
 
         document.querySelectorAll('.fc-list-event').forEach(row => {
-          const appliedTags = knownTags.filter(tag => row.classList.contains(tag));
+          // Extract tags present from global setup keys list
+          const appliedTags = uniqueTags.filter(tag => row.classList.contains(tag));
           let shouldShow = true;
 
-          // Event must match at least one selected category check option to display
           if (appliedTags.length > 0) {
             shouldShow = appliedTags.some(tag => activeTags.includes(tag));
+          } else {
+            // Keep untagged items visible if no tags are explicitly set on them
+            shouldShow = true;
           }
 
           if (shouldShow) {
@@ -184,7 +147,7 @@
           }
         });
 
-        // Remove empty header bars when matching event items are hidden away
+        // Hide empty day header segments safely
         document.querySelectorAll('.fc-list-day').forEach(dayHeader => {
           let nextEl = dayHeader.nextElementSibling;
           let hasVisibleEvents = false;
@@ -204,20 +167,17 @@
           }
         });
 
-        // Fixes sticky rendering calculations
         if (calendar && calendar.updateSize) {
           calendar.updateSize();
         }
       };
 
-      // Run filters whenever the view dates jump or alternate
       calendar.on('datesSet', function () {
         setTimeout(filterEvents, 0);
       });
 
       calendar.render();
     });
-
   </script>
 </head>
 
@@ -228,23 +188,12 @@
         <span>Filter by Tags</span>
         <span class="dropdown-arrow">▼</span>
       </button>
-      <div class="dropdown-content" id="filterDropdown">
-        <label class="dropdown-item">
-          <input type="checkbox" value="class-medical" checked onchange="filterEvents()">
-          <span class="badge class-medical">Medical</span>
-        </label>
-        <label class="dropdown-item">
-          <input type="checkbox" value="class-business" checked onchange="filterEvents()">
-          <span class="badge class-business">Business</span>
-        </label>
-        <label class="dropdown-item">
-          <input type="checkbox" value="class-personal" checked onchange="filterEvents()">
-          <span class="badge class-personal">Personal</span>
-        </label>
-      </div>
+      <!-- Generated HTML check options load explicitly down below dynamically -->
+      <div class="dropdown-content" id="filterDropdown"></div>
     </div>
   </div>
-  <div id='calendar'></div>
+
+  <div id="calendar"></div>
 </body>
 
 </html>
