@@ -1,0 +1,36 @@
+{
+    "files.simpleDialog.enable": true,
+    "files.insertFinalNewline": true,
+    "terminal.integrated.allowChords": false,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "editor.rulers": [
+        88
+    ],
+    "python.analysis.typeCheckingMode": "standard",
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": "explicit",
+            "source.fixAll.ruff": "explicit"
+        }
+    },
+    "ruff.configuration": {
+        "lint": {
+            "select": [
+                "B", // flake8-bugbear - https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+                "C4", // flake8-comprehensions - https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+                "E", // pycodestyle errors - https://docs.astral.sh/ruff/rules/#error-e
+                "F", // pyflakes rules - https://docs.astral.sh/ruff/rules/#pyflakes-f
+                "W", // pycodestyle warnings - https://docs.astral.sh/ruff/rules/#warning-w
+                "I", // isort - https://docs.astral.sh/ruff/rules/#isort-i
+                "UP", // pyupgrade - https://docs.astral.sh/ruff/rules/#pyupgrade-up
+                "N", //pep8-naming - https://docs.astral.sh/ruff/rules/#pep8-naming-n
+                "SLF" // self - https://docs.astral.sh/ruff/settings/#lintflake8-self
+            ]
+        },
+        "line-length": 88
+    }
+}
