@@ -1,0 +1,5 @@
+name = "cloudflared-worker-rebuild"
+keep_vars = true
+
+[assets]
+directory = "./dist"
