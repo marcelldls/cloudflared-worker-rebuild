@@ -175,6 +175,13 @@ body {
         font-size: 0.8rem;
     }
 
+    .fc-event-title {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
     .fc-toolbar-title {
         font-size: 1rem !important;
     }
