@@ -67,6 +67,31 @@
       color: #1b5e20 !important;
     }
 
+    .filter-container {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Formats the labels into matching capsule style */
+    .filter-pill {
+      padding: 0.5em 1.2em;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    /* Hides events when their tag is unchecked */
+    .fc-list-event.hidden-event {
+      display: none !important;
+    }
+
     /* Mobile-specific adjustments */
     @media (max-width: 768px) {
       #calendar {
@@ -110,6 +135,12 @@
           left: 'prev,next',
           center: 'title',
           right: 'dayGridMonth,listMonth'
+        },
+        eventClassNames: function (arg) {
+          if (arg.event.classNames.length) {
+            return arg.event.classNames;
+          }
+          return [];
         },
         eventClick: function (info) {
           if (info.event.url) {
@@ -183,12 +214,54 @@
           }
         ]
       });
+
+      window.filterEvents = function () {
+        // Find all unchecked tag values
+        const activeTags = Array.from(document.querySelectorAll('.filter-container input:checked')).map(el => el.value);
+
+        // Loop through all rendered list event rows
+        document.querySelectorAll('.fc-list-event').forEach(row => {
+          // Check if row has any of the classification classes
+          const hasMedical = row.classList.contains('class-medical');
+          const hasBusiness = row.classList.contains('class-business');
+          const hasPersonal = row.classList.contains('class-personal');
+
+          // Determine if this row belongs to any tag category
+          let rowTag = null;
+          if (hasMedical) rowTag = 'class-medical';
+          if (hasBusiness) rowTag = 'class-business';
+          if (hasPersonal) rowTag = 'class-personal';
+
+          // If the event has a tag and that tag is unchecked, hide it
+          if (rowTag && !activeTags.includes(rowTag)) {
+            row.classList.add('hidden-event');
+          } else {
+            row.classList.remove('hidden-event');
+          }
+        });
+      };
+
+      // Run filter rule after every view render switch
+      calendar.on('datesSet', function () {
+        setTimeout(filterEvents, 0);
+      });
       calendar.render();
     });
   </script>
 </head>
 
 <body>
+  <div class="filter-container">
+    <label class="filter-pill class-medical">
+      <input type="checkbox" value="class-medical" checked onchange="filterEvents()"> Medical
+    </label>
+    <label class="filter-pill class-business">
+      <input type="checkbox" value="class-business" checked onchange="filterEvents()"> Business
+    </label>
+    <label class="filter-pill class-personal">
+      <input type="checkbox" value="class-personal" checked onchange="filterEvents()"> Personal
+    </label>
+  </div>
   <div id='calendar'></div>
 </body>
 
