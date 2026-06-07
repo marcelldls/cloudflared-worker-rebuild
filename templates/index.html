@@ -27,12 +27,50 @@
             }
           }
         },
-        // Hook to preserve user custom class categories during layout passes
+        // Ensures classes are attached directly to DOM rows for the filtering system
         eventClassNames: function (arg) {
           if (arg.event.classNames && arg.event.classNames.length) {
             return arg.event.classNames;
           }
           return [];
+        },
+        // Remaps the event element to strip full-row colors and render text tags inline instead
+        eventContent: function (arg) {
+          const titleText = arg.event.title;
+          const classes = arg.event.classNames || [];
+
+          // Create a wrapper element for the text title
+          const titleEl = document.createElement('span');
+          titleEl.classList.add('fc-list-event-title-text');
+          titleEl.innerText = titleText;
+
+          // Base block container
+          const wrapEl = document.createElement('div');
+          wrapEl.style.display = 'inline-block';
+          wrapEl.appendChild(titleEl);
+
+          // Render explicit layout badges inline next to the text title if tags exist
+          if (classes.length > 0) {
+            const tagsContainer = document.createElement('span');
+            tagsContainer.classList.add('fc-tags-container');
+
+            classes.forEach(cls => {
+              let label = '';
+              if (cls === 'class-medical') label = 'Medical';
+              if (cls === 'class-business') label = 'Business';
+              if (cls === 'class-personal') label = 'Personal';
+
+              if (label) {
+                const badge = document.createElement('span');
+                badge.className = `badge ${cls}`;
+                badge.innerText = label;
+                tagsContainer.appendChild(badge);
+              }
+            });
+            wrapEl.appendChild(tagsContainer);
+          }
+
+          return { domNodes: [wrapEl] };
         },
         eventClick: function (info) {
           if (info.event.url) {
@@ -65,7 +103,8 @@
           {
             title: 'Conference',
             start: '2026-05-11',
-            end: '2026-05-13'
+            end: '2026-05-13',
+            classNames: ['class-business', 'class-personal']
           },
           {
             title: 'Meeting',
@@ -104,18 +143,18 @@
           {
             title: 'Dinner with Parents',
             start: '2026-05-29T19:00:00',
-            classNames: ['class-personal']
+            classNames: ['class-personal', 'class-medical']
           }
         ]
       });
 
-      // Displays or collapses filter select content lists
+      // Drops down or collapses multi-select checkbox menu container layout boxes
       window.toggleDropdown = function (event) {
         event.stopPropagation();
         document.getElementById('filterDropdown').classList.toggle('show');
       };
 
-      // Automatically shuts active popups safely if clicking calendar data areas
+      // Closes open popups safely if clicking active viewport white space areas
       document.addEventListener('click', function (event) {
         const dropdown = document.getElementById('filterDropdown');
         const container = document.querySelector('.dropdown-container');
@@ -124,27 +163,20 @@
         }
       });
 
+      // Iterates through views filtering tags or cleanup actions
       window.filterEvents = function () {
-        // 1. Get an array of all currently checked tag values from the dropdown
-        const activeTags = Array.from(document.querySelectorAll('.dropdown-container input:checked'))
-          .map(el => el.value);
-
-        // Define our known classification system tags
+        const activeTags = Array.from(document.querySelectorAll('.dropdown-container input:checked')).map(el => el.value);
         const knownTags = ['class-medical', 'class-business', 'class-personal'];
 
-        // 2. Loop through all rendered calendar event rows
         document.querySelectorAll('.fc-list-event').forEach(row => {
-          // Collect all known tags that are actually applied to this specific event row
           const appliedTags = knownTags.filter(tag => row.classList.contains(tag));
-
           let shouldShow = true;
 
-          // If the event has tags, it must match at least one active filter to stay visible
+          // Event must match at least one selected category check option to display
           if (appliedTags.length > 0) {
             shouldShow = appliedTags.some(tag => activeTags.includes(tag));
           }
 
-          // Apply or remove your hidden-event style class
           if (shouldShow) {
             row.classList.remove('hidden-event');
           } else {
@@ -152,12 +184,11 @@
           }
         });
 
-        // 3. Clean up empty list day headers that have no visible events left under them
+        // Remove empty header bars when matching event items are hidden away
         document.querySelectorAll('.fc-list-day').forEach(dayHeader => {
           let nextEl = dayHeader.nextElementSibling;
           let hasVisibleEvents = false;
 
-          // Scan forward through following rows until hitting the next day block container
           while (nextEl && nextEl.classList.contains('fc-list-event')) {
             if (!nextEl.classList.contains('hidden-event')) {
               hasVisibleEvents = true;
@@ -166,7 +197,6 @@
             nextEl = nextEl.nextElementSibling;
           }
 
-          // Hide or show the day header row safely
           if (hasVisibleEvents) {
             dayHeader.style.setProperty('display', '', 'important');
           } else {
@@ -174,19 +204,20 @@
           }
         });
 
-        // 4. Force FullCalendar layout engine to update view bounds
+        // Fixes sticky rendering calculations
         if (calendar && calendar.updateSize) {
           calendar.updateSize();
         }
       };
 
-      // Run filter checks on initial render and view switches
+      // Run filters whenever the view dates jump or alternate
       calendar.on('datesSet', function () {
         setTimeout(filterEvents, 0);
       });
 
       calendar.render();
     });
+
   </script>
 </head>
 

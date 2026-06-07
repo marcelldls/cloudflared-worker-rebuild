@@ -18,12 +18,10 @@ body {
     height: 100vh;
 }
 
-/* Base calendar styling overrides */
+/* Base calendar overrides */
 .fc-event {
     cursor: pointer;
-    padding: 4px 6px;
     font-size: 0.85rem;
-    border-radius: 3px;
 }
 
 .fc-toolbar-title {
@@ -40,26 +38,7 @@ body {
     gap: 6px;
 }
 
-/* Classification Styles (Tags) */
-.class-medical {
-    background-color: #e3f2fd !important;
-    border-left: 4px solid #1e88e5 !important;
-    color: #0d47a1 !important;
-}
-
-.class-business {
-    background-color: #ede7f6 !important;
-    border-left: 4px solid #5e35b1 !important;
-    color: #4a148c !important;
-}
-
-.class-personal {
-    background-color: #e8f5e9 !important;
-    border-left: 4px solid #43a047 !important;
-    color: #1b5e20 !important;
-}
-
-/* Sticky top bar anchor wrapper */
+/* Sticky layout updates */
 .filter-wrapper {
     position: sticky;
     top: 0;
@@ -69,15 +48,12 @@ body {
     border-bottom: 1px solid #e5e7eb;
 }
 
-/* Dropdown component container */
 .dropdown-container {
     position: relative;
     width: 100%;
     max-width: 300px;
-    /* Clean form element size constraint */
 }
 
-/* The clickable trigger capsule button */
 .dropdown-btn {
     width: 100%;
     padding: 0.6em 1.2em;
@@ -86,7 +62,6 @@ body {
     background-color: #ffffff;
     border: 1px solid #d1d5db;
     border-radius: 9999px;
-    /* Matches your rounded capsule theme design */
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -97,7 +72,6 @@ body {
     background-color: #f9fafb;
 }
 
-/* Scrollable floating popover option panel hidden by default */
 .dropdown-content {
     display: none;
     position: absolute;
@@ -105,9 +79,7 @@ body {
     left: 0;
     width: 100%;
     max-height: 250px;
-    /* Keeps panel from blowing past iframe window rules */
     overflow-y: auto;
-    /* Scrollbar handles extensive lists effortlessly */
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -115,14 +87,12 @@ body {
     padding: 6px;
 }
 
-/* Active open state toggled via click script */
 .dropdown-content.show {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-/* Layout inside each clickable selection row */
 .dropdown-item {
     display: flex;
     align-items: center;
@@ -137,15 +107,42 @@ body {
     background-color: #f3f4f6;
 }
 
-/* Inner pill indicators */
+/* Inline Tag Badge Styling */
+.fc-tags-container {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
 .badge {
     padding: 2px 8px;
     border-radius: 9999px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 500;
+    display: inline-block;
 }
 
-/* Update sticky offsets relative to new smaller filter height bounds */
+/* Standardised non-intrusive tag designs */
+.class-medical {
+    background-color: #e3f2fd;
+    border: 1px solid #1e88e5;
+    color: #0d47a1;
+}
+
+.class-business {
+    background-color: #ede7f6;
+    border: 1px solid #5e35b1;
+    color: #4a148c;
+}
+
+.class-personal {
+    background-color: #e8f5e9;
+    border: 1px solid #43a047;
+    color: #1b5e20;
+}
+
+/* Removed all old row overrides to keep default layout styling */
 .fc-header-toolbar {
     position: sticky;
     top: 53px;
@@ -161,19 +158,16 @@ body {
     background-color: #f3f4f6 !important;
 }
 
-/* Hides events when their tag is unchecked */
 .fc-list-event.hidden-event {
     display: none !important;
 }
 
-/* Mobile-specific adjustments */
 @media (max-width: 768px) {
     #calendar {
         padding: 5px;
     }
 
     .fc-event {
-        padding: 3px 5px;
         font-size: 0.8rem;
     }
 
@@ -184,15 +178,5 @@ body {
     .fc-button {
         padding: 0.3em 0.6em !important;
         font-size: 0.8rem !important;
-        border-radius: 50% !important;
-    }
-
-    .fc-button-group {
-        gap: 6px;
-    }
-
-    .fc-list-day-text,
-    .fc-list-day-side-text {
-        font-size: 0.9rem;
     }
 }
