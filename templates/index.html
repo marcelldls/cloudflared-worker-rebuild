@@ -17,7 +17,15 @@
         headerToolbar: {
           left: 'prev,next',
           center: 'title',
-          right: 'dayGridMonth,listMonth'
+          right: 'externalLink'
+        },
+        customButtons: {
+          externalLink: {
+            text: 'Full Screen',
+            click: function () {
+              window.top.location.href = 'https://callender.marcelldls.lol';
+            }
+          }
         },
         eventClassNames: function (arg) {
           if (arg.event.classNames.length) {
