@@ -117,7 +117,7 @@
 
       window.filterEvents = function () {
         // Find all unchecked tag values
-        const activeTags = Array.from(document.querySelectorAll('.filter-container input:checked')).map(el => el.value);
+        const activeTags = Array.from(document.querySelectorAll('.dropdown-container input:checked')).map(el => el.value);
 
         // Loop through all rendered list event rows
         document.querySelectorAll('.fc-list-event').forEach(row => {
