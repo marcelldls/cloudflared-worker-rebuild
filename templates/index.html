@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // 1. Centralized Event Data Source
+      // 1. Raw Event Data Source
       const eventData = [
         { title: 'All Day Event', start: '2026-05-01', classNames: ['class-medical', 'class-personal'] },
         { title: 'Long Event', start: '2026-05-07', end: '2026-05-10', classNames: ['class-personal'] },
@@ -25,33 +25,83 @@
         { title: 'Dinner with Parents', start: '2026-05-29T19:00:00', classNames: ['class-personal', 'class-medical'] }
       ];
 
-      // Helper function to clean text tags dynamically ("class-medical" -> "Medical")
+      // Helper function to format labels dynamically
       function formatLabel(className) {
+        if (!className) return '';
         return className.replace('class-', '').replace(/^\w/, c => c.toUpperCase());
       }
 
-      // 2. Extract unique non-empty tags from event classes
+      // 2. Extract Unique Tags Safely
       const uniqueTags = Array.from(
         new Set(eventData.flatMap(evt => evt.classNames || []))
       ).filter(Boolean);
 
-      // 3. Build UI filtering checkbox menus dynamically
+      // 3. Define the Filter Function Early (so dropdown events can call it)
+      function filterEvents() {
+        const checkedInputs = Array.from(document.querySelectorAll('.dropdown-container input:checked'));
+        const activeTags = checkedInputs.map(el => el.value);
+
+        document.querySelectorAll('.fc-list-event').forEach(row => {
+          const appliedTags = uniqueTags.filter(tag => row.classList.contains(tag));
+          let shouldShow = true;
+
+          if (appliedTags.length > 0) {
+            shouldShow = appliedTags.some(tag => activeTags.includes(tag));
+          }
+
+          if (shouldShow) {
+            row.classList.remove('hidden-event');
+          } else {
+            row.classList.add('hidden-event');
+          }
+        });
+
+        // Toggle day headers based on event visibility
+        document.querySelectorAll('.fc-list-day').forEach(dayHeader => {
+          let nextEl = dayHeader.nextElementSibling;
+          let hasVisibleEvents = false;
+
+          while (nextEl && nextEl.classList.contains('fc-list-event')) {
+            if (!nextEl.classList.contains('hidden-event')) {
+              hasVisibleEvents = true;
+              break;
+            }
+            nextEl = nextEl.nextElementSibling;
+          }
+
+          if (hasVisibleEvents) {
+            dayHeader.style.setProperty('display', '', 'important');
+          } else {
+            dayHeader.style.setProperty('display', 'none', 'important');
+          }
+        });
+
+        if (calendar && calendar.updateSize) {
+          calendar.updateSize();
+        }
+      }
+
+      // Expose to window fallback safely if needed by inline handlers
+      window.filterEvents = filterEvents;
+
+      // 4. Generate Filter Dropdown Elements
       const dropdownContainer = document.getElementById('filterDropdown');
-      dropdownContainer.innerHTML = '';
+      if (dropdownContainer) {
+        dropdownContainer.innerHTML = '';
+        uniqueTags.forEach(tag => {
+          const labelText = formatLabel(tag);
+          const labelEl = document.createElement('label');
+          labelEl.className = 'dropdown-item';
+          labelEl.innerHTML = `
+            <input type="checkbox" value="${tag}" checked>
+            <span class="badge ${tag}">${labelText}</span>
+          `;
+          labelEl.querySelector('input').addEventListener('change', filterEvents);
+          dropdownContainer.appendChild(labelEl);
+        });
+      }
 
-      uniqueTags.forEach(tag => {
-        const labelText = formatLabel(tag);
-        const labelEl = document.createElement('label');
-        labelEl.className = 'dropdown-item';
-        labelEl.innerHTML = `
-          <input type="checkbox" value="${tag}" checked>
-          <span class="badge ${tag}">${labelText}</span>
-        `;
-        // Bind dynamic element event listeners
-        labelEl.querySelector('input').addEventListener('change', filterEvents);
-        dropdownContainer.appendChild(labelEl);
-      });
-
+      // 5. Initialise FullCalendar
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'listMonth',
@@ -111,6 +161,7 @@
         events: eventData
       });
 
+      // 6. UI Dropdown Controls
       window.toggleDropdown = function (event) {
         event.stopPropagation();
         dropdownContainer.classList.toggle('show');
@@ -123,55 +174,7 @@
         }
       });
 
-      // 4. Dynamic filtering action block
-      window.filterEvents = function () {
-        const checkedInputs = Array.from(document.querySelectorAll('.dropdown-container input:checked'));
-        const activeTags = checkedInputs.map(el => el.value);
-
-        document.querySelectorAll('.fc-list-event').forEach(row => {
-          // Extract tags present from global setup keys list
-          const appliedTags = uniqueTags.filter(tag => row.classList.contains(tag));
-          let shouldShow = true;
-
-          if (appliedTags.length > 0) {
-            shouldShow = appliedTags.some(tag => activeTags.includes(tag));
-          } else {
-            // Keep untagged items visible if no tags are explicitly set on them
-            shouldShow = true;
-          }
-
-          if (shouldShow) {
-            row.classList.remove('hidden-event');
-          } else {
-            row.classList.add('hidden-event');
-          }
-        });
-
-        // Hide empty day header segments safely
-        document.querySelectorAll('.fc-list-day').forEach(dayHeader => {
-          let nextEl = dayHeader.nextElementSibling;
-          let hasVisibleEvents = false;
-
-          while (nextEl && nextEl.classList.contains('fc-list-event')) {
-            if (!nextEl.classList.contains('hidden-event')) {
-              hasVisibleEvents = true;
-              break;
-            }
-            nextEl = nextEl.nextElementSibling;
-          }
-
-          if (hasVisibleEvents) {
-            dayHeader.style.setProperty('display', '', 'important');
-          } else {
-            dayHeader.style.setProperty('display', 'none', 'important');
-          }
-        });
-
-        if (calendar && calendar.updateSize) {
-          calendar.updateSize();
-        }
-      };
-
+      // Re-trigger visual filter passes whenever dates or months jump
       calendar.on('datesSet', function () {
         setTimeout(filterEvents, 0);
       });
@@ -188,7 +191,6 @@
         <span>Filter by Tags</span>
         <span class="dropdown-arrow">▼</span>
       </button>
-      <!-- Generated HTML check options load explicitly down below dynamically -->
       <div class="dropdown-content" id="filterDropdown"></div>
     </div>
   </div>
