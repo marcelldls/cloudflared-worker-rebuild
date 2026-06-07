@@ -100,6 +100,21 @@
         ]
       });
 
+      // Displays or collapses filter select content lists
+      window.toggleDropdown = function (event) {
+        event.stopPropagation();
+        document.getElementById('filterDropdown').classList.toggle('show');
+      };
+
+      // Automatically shuts active popups safely if clicking calendar data areas
+      document.addEventListener('click', function (event) {
+        const dropdown = document.getElementById('filterDropdown');
+        const container = document.querySelector('.dropdown-container');
+        if (dropdown && !container.contains(event.target)) {
+          dropdown.classList.remove('show');
+        }
+      });
+
       window.filterEvents = function () {
         // Find all unchecked tag values
         const activeTags = Array.from(document.querySelectorAll('.filter-container input:checked')).map(el => el.value);
@@ -136,16 +151,28 @@
 </head>
 
 <body>
-  <div class="filter-container">
-    <label class="filter-pill class-medical">
-      <input type="checkbox" value="class-medical" checked onchange="filterEvents()"> Medical
-    </label>
-    <label class="filter-pill class-business">
-      <input type="checkbox" value="class-business" checked onchange="filterEvents()"> Business
-    </label>
-    <label class="filter-pill class-personal">
-      <input type="checkbox" value="class-personal" checked onchange="filterEvents()"> Personal
-    </label>
+  <div class="filter-wrapper">
+    <div class="dropdown-container">
+      <button class="dropdown-btn" onclick="toggleDropdown(event)">
+        <span>Filter by Tags</span>
+        <span class="dropdown-arrow">▼</span>
+      </button>
+      <div class="dropdown-content" id="filterDropdown">
+        <label class="dropdown-item">
+          <input type="checkbox" value="class-medical" checked onchange="filterEvents()">
+          <span class="badge class-medical">Medical</span>
+        </label>
+        <label class="dropdown-item">
+          <input type="checkbox" value="class-business" checked onchange="filterEvents()">
+          <span class="badge class-business">Business</span>
+        </label>
+        <label class="dropdown-item">
+          <input type="checkbox" value="class-personal" checked onchange="filterEvents()">
+          <span class="badge class-personal">Personal</span>
+        </label>
+        <!-- You can easily copy and paste more items here as your tag list grows -->
+      </div>
+    </div>
   </div>
   <div id='calendar'></div>
 </body>

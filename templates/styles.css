@@ -59,24 +59,106 @@ body {
     color: #1b5e20 !important;
 }
 
-.filter-container {
-    display: flex;
-    gap: 10px;
+/* Sticky top bar anchor wrapper */
+.filter-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #ffffff;
     padding: 10px;
-    max-width: 100%;
-    margin: 0 auto;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-/* Formats the labels into matching capsule style */
-.filter-pill {
-    padding: 0.5em 1.2em;
+/* Dropdown component container */
+.dropdown-container {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    /* Clean form element size constraint */
+}
+
+/* The clickable trigger capsule button */
+.dropdown-btn {
+    width: 100%;
+    padding: 0.6em 1.2em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
     border-radius: 9999px;
+    /* Matches your rounded capsule theme design */
     cursor: pointer;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 6px;
-    font-weight: 500;
+}
+
+.dropdown-btn:hover {
+    background-color: #f9fafb;
+}
+
+/* Scrollable floating popover option panel hidden by default */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    max-height: 250px;
+    /* Keeps panel from blowing past iframe window rules */
+    overflow-y: auto;
+    /* Scrollbar handles extensive lists effortlessly */
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 6px;
+}
+
+/* Active open state toggled via click script */
+.dropdown-content.show {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Layout inside each clickable selection row */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 4px;
     user-select: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+
+/* Inner pill indicators */
+.badge {
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Update sticky offsets relative to new smaller filter height bounds */
+.fc-header-toolbar {
+    position: sticky;
+    top: 53px;
+    z-index: 99;
+    background-color: #ffffff;
+    padding: 6px 0;
+}
+
+.fc-list-day {
+    position: sticky;
+    top: 103px;
+    z-index: 98;
+    background-color: #f3f4f6 !important;
 }
 
 /* Hides events when their tag is unchecked */
