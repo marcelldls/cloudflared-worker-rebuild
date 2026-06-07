@@ -47,7 +47,7 @@
         new Set(eventData.flatMap(evt => evt.classNames || []))
       ).filter(Boolean);
 
-      // 4. Generate Dynamic CSS Styles & Inject them into <head>
+      // 4. Generate Dynamic CSS Styles targeting ONLY the badges & Inject them into <head>
       const styleEl = document.createElement('style');
       let dynamicStyles = '';
 
@@ -55,7 +55,7 @@
         // Cycle through palettes sequentially if tags exceed palette count
         const palette = colorPalettes[index % colorPalettes.length];
         dynamicStyles += `
-          .${tag} {
+          .badge.${tag} {
             background-color: ${palette.bg} !important;
             border: 1px solid ${palette.border} !important;
             color: ${palette.text} !important;
