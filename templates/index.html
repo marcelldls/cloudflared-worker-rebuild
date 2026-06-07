@@ -27,8 +27,9 @@
             }
           }
         },
+        // Hook to preserve user custom class categories during layout passes
         eventClassNames: function (arg) {
-          if (arg.event.classNames.length) {
+          if (arg.event.classNames && arg.event.classNames.length) {
             return arg.event.classNames;
           }
           return [];
@@ -43,13 +44,13 @@
           {
             title: 'All Day Event',
             start: '2026-05-01',
-            className: 'class-medical'
+            classNames: ['class-medical']
           },
           {
             title: 'Long Event',
             start: '2026-05-07',
             end: '2026-05-10',
-            className: 'class-personal'
+            classNames: ['class-personal']
           },
           {
             groupId: '999',
@@ -92,18 +93,18 @@
             title: 'Dentist Checkup',
             start: '2026-05-25T10:00:00',
             end: '2026-05-25T11:30:00',
-            className: 'class-medical'
+            classNames: ['class-medical']
           },
           {
             title: 'Quarterly Board Meeting',
             start: '2026-05-27T14:00:00',
             end: '2026-05-27T16:00:00',
-            className: 'class-business'
+            classNames: ['class-business']
           },
           {
             title: 'Dinner with Parents',
             start: '2026-05-29T19:00:00',
-            className: 'class-personal'
+            classNames: ['class-personal']
           }
         ]
       });
@@ -124,7 +125,7 @@
       });
 
       window.filterEvents = function () {
-        // Find all unchecked tag values
+        // Find all checked tag values
         const activeTags = Array.from(document.querySelectorAll('.dropdown-container input:checked')).map(el => el.value);
 
         // Loop through all rendered list event rows
@@ -140,19 +141,47 @@
           if (hasBusiness) rowTag = 'class-business';
           if (hasPersonal) rowTag = 'class-personal';
 
-          // If the event has a tag and that tag is unchecked, hide it
+          // If an event has a custom tag category and that category is unchecked, hide it
           if (rowTag && !activeTags.includes(rowTag)) {
             row.classList.add('hidden-event');
           } else {
             row.classList.remove('hidden-event');
           }
         });
+
+        // Clean up orphan list day headers that have no active events visible under them
+        document.querySelectorAll('.fc-list-day').forEach(dayHeader => {
+          let nextEl = dayHeader.nextElementSibling;
+          let hasVisibleEvents = false;
+
+          // Scan forward through sister element rows until hitting the next day block
+          while (nextEl && nextEl.classList.contains('fc-list-event')) {
+            if (!nextEl.classList.contains('hidden-event')) {
+              hasVisibleEvents = true;
+              break;
+            }
+            nextEl = nextEl.nextElementSibling;
+          }
+
+          // Hide or reveal the header container row
+          if (hasVisibleEvents) {
+            dayHeader.style.setProperty('display', '', 'important');
+          } else {
+            dayHeader.style.setProperty('display', 'none', 'important');
+          }
+        });
+
+        // Forces FullCalendar view layer wrapper to recompute sizing bounds
+        if (calendar && calendar.updateSize) {
+          calendar.updateSize();
+        }
       };
 
-      // Run filter rule after every view render switch
+      // Run filter checks on initial render and view switches
       calendar.on('datesSet', function () {
         setTimeout(filterEvents, 0);
       });
+
       calendar.render();
     });
   </script>
@@ -178,7 +207,6 @@
           <input type="checkbox" value="class-personal" checked onchange="filterEvents()">
           <span class="badge class-personal">Personal</span>
         </label>
-        <!-- You can easily copy and paste more items here as your tag list grows -->
       </div>
     </div>
   </div>
