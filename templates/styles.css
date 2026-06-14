@@ -16,6 +16,7 @@ body {
     margin: 0 auto;
     padding: 10px;
     height: 100vh;
+    padding-top: 110px;
 }
 
 /* Base calendar overrides */
@@ -40,12 +41,15 @@ body {
 
 /* Sticky layout updates */
 .filter-wrapper {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     background-color: #ffffff;
     padding: 10px;
     height: 53px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .dropdown-container {
@@ -125,11 +129,14 @@ body {
 
 /* Removed all old row overrides to keep default layout styling */
 .fc-header-toolbar {
-    position: sticky;
+    position: fixed;
     top: 53px;
+    left: 0;
+    right: 0;
     z-index: 99;
     background-color: #ffffff;
-    padding: 6px 0;
+    padding: 6px 10px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .fc-list-day {
