@@ -155,30 +155,3 @@ body {
 .fc-list-event.hidden-event {
     display: none !important;
 }
-
-@media (max-width: 48rem) {
-
-    #calendar {
-        padding: 0.3125rem;
-    }
-
-    .fc-event {
-        font-size: 0.8rem;
-    }
-
-    .fc-event-title {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-    }
-
-    .fc-toolbar-title {
-        font-size: 1rem !important;
-    }
-
-    .fc-button {
-        padding: 0.3em 0.6em !important;
-        font-size: 0.8rem !important;
-    }
-}
