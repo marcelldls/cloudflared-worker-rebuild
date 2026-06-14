@@ -45,7 +45,7 @@ body {
     z-index: 1000;
     background-color: #ffffff;
     padding: 10px;
-    border-bottom: 1px solid #e5e7eb;
+    height: 53px;
 }
 
 .dropdown-container {
@@ -133,8 +133,8 @@ body {
 }
 
 .fc-list-day {
-    position: sticky;
-    top: 103px;
+    position: static;
+    top: calc(53px + 2.5rem);
     z-index: 98;
     background-color: #f3f4f6 !important;
 }
