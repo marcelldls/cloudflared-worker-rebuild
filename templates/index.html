@@ -47,6 +47,20 @@
         new Set(eventData.flatMap(evt => evt.classNames || []))
       ).filter(Boolean);
 
+      const targetOrigin = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? window.location.origin
+        : 'https://marcelldls.com';
+
+      // Wait until the parent page says "I am ready and listening"
+      window.addEventListener('message', function (event) {
+        if (event.data && event.data.type === 'PARENT_READY') {
+          window.parent.postMessage({
+            type: 'CALENDAR_UNIQUE_TAGS',
+            payload: uniqueTags
+          }, targetOrigin);
+        }
+      });
+
       // 4. Generate Dynamic CSS Styles targeting ONLY the badges & Inject them into <head>
       const styleEl = document.createElement('style');
       let dynamicStyles = '';
