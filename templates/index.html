@@ -49,7 +49,12 @@
 
       // 4. Generate Dynamic CSS Styles targeting ONLY the badges & Inject them into <head>
       const styleEl = document.createElement('style');
-      let dynamicStyles = '';
+      let dynamicStyles = `
+        /* KEYBOARD FILTER FIX: Utility class to hide non-matching choices */
+        .dropdown-item.hidden-item {
+          display: none !important;
+        }
+      `;
 
       uniqueTags.forEach((tag, index) => {
         // Cycle through palettes sequentially if tags exceed palette count
@@ -67,7 +72,8 @@
 
       // 5. Define Filter Logic
       function filterEvents() {
-        const checkedInputs = Array.from(document.querySelectorAll('.dropdown-container input:checked'));
+        // MECHANIC FIX: Replaced .dropdown-container query match with the unified .dropdown-item class
+        const checkedInputs = Array.from(document.querySelectorAll('.dropdown-item input:checked'));
         const activeTags = checkedInputs.map(el => el.value);
 
         document.querySelectorAll('.fc-list-event').forEach(row => {
@@ -115,7 +121,30 @@
       // 6. Generate Filter Dropdown Layout
       const dropdownContainer = document.getElementById('filterDropdown');
       if (dropdownContainer) {
-        dropdownContainer.innerHTML = '';
+        // KEYBOARD FILTER FIX: Injected search box template into the filter panel header
+        dropdownContainer.innerHTML = `
+          <input type="text" id="calendar-dropdown-search" placeholder="Type to filter..." style="width: calc(100% - 16px); margin: 8px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background: #fff; color: #333; font-size: 0.85rem;">
+          <div id="calendar-dropdown-items-container"></div>
+        `;
+
+        const searchInput = document.getElementById('calendar-dropdown-search');
+        const itemsContainer = document.getElementById('calendar-dropdown-items-container');
+
+        // KEYBOARD FILTER FIX: Dynamic keyup filter listener matching badge layouts
+        searchInput.addEventListener('keyup', () => {
+          const filterText = searchInput.value.toLowerCase().trim();
+          const items = itemsContainer.querySelectorAll('.dropdown-item');
+
+          items.forEach(item => {
+            const badgeText = item.querySelector('.badge').textContent.toLowerCase();
+            if (badgeText.includes(filterText)) {
+              item.classList.remove('hidden-item');
+            } else {
+              item.classList.add('hidden-item');
+            }
+          });
+        });
+
         uniqueTags.forEach(tag => {
           const labelText = formatLabel(tag);
           const labelEl = document.createElement('label');
@@ -125,7 +154,7 @@
             <span class="badge ${tag}">${labelText}</span>
           `;
           labelEl.querySelector('input').addEventListener('change', filterEvents);
-          dropdownContainer.appendChild(labelEl);
+          itemsContainer.appendChild(labelEl);
         });
       }
 
@@ -211,8 +240,8 @@
           return { domNodes: [wrapEl] };
         },
         eventClick: function (info) {
-          const targetLink = info.event.extendedProps.link;
-
+          // Re-mapped to standard extended properties context definition matching eventData structure
+          const targetLink = info.event.extendedProps.link || info.event.url;
           if (targetLink) {
             info.jsEvent.preventDefault();
             window.open(targetLink, '_blank');
@@ -224,12 +253,25 @@
       // 8. Toggle Dropdown Window Setup
       window.toggleDropdown = function (event) {
         event.stopPropagation();
-        dropdownContainer.classList.toggle('show');
+        if (dropdownContainer) {
+          dropdownContainer.classList.toggle('show');
+
+          // Automatically clear input text and focus search field when opened
+          if (dropdownContainer.classList.contains('show')) {
+            const searchInput = document.getElementById('calendar-dropdown-search');
+            const itemsContainer = document.getElementById('calendar-dropdown-items-container');
+            if (searchInput && itemsContainer) {
+              searchInput.value = '';
+              itemsContainer.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('hidden-item'));
+              searchInput.focus();
+            }
+          }
+        }
       };
 
       document.addEventListener('click', function (event) {
         const container = document.querySelector('.dropdown-container');
-        if (dropdownContainer && !container.contains(event.target)) {
+        if (dropdownContainer && (!container || !container.contains(event.target))) {
           dropdownContainer.classList.remove('show');
         }
       });
