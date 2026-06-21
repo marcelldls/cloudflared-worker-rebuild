@@ -141,7 +141,7 @@ def fetch_from_d1(
         account_id=account_id,
         database_id=database_id,
         sql=TAGGED_EVENTS,
-        params=["1"],
+        params=["1"],  # TODO: filter past events
     )
 
     # Extract results
