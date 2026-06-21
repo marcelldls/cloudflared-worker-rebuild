@@ -149,13 +149,17 @@
           const labelText = formatLabel(tag);
           const labelEl = document.createElement('label');
           labelEl.className = 'dropdown-item';
+
+          const isChecked = tag.id === 'all' || tag === 'class-all' ? 'checked' : '';
+
           labelEl.innerHTML = `
-            <input type="checkbox" value="${tag}" checked>
-            <span class="badge ${tag}">${labelText}</span>
+            <input type="checkbox" value="${tag.id || tag}" ${isChecked}>
+            <span class="badge ${tag.id || tag}">${labelText}</span>
           `;
           labelEl.querySelector('input').addEventListener('change', filterEvents);
           itemsContainer.appendChild(labelEl);
         });
+
       }
 
       const targetOrigin = window.location.hostname === 'localhost'
