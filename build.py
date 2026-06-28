@@ -23,7 +23,13 @@ def build_dist(events: list[dict[str, Any]], tags: dict[str, dict]):
 
     env = Environment(loader=FileSystemLoader("templates"))
     template = env.get_template("index.jinja")
-    rendered_output = template.render({"events": events, "tags": tags})
+    rendered_output = template.render(
+        {
+            "events": events,
+            "tags": tags,
+            "build_date": datetime.datetime.now().isoformat(),
+        }
+    )
     (TARGET / "index.html").write_text(rendered_output)
 
     copy2(DEPS / "index.global.js", TARGET / "index.global.js")
