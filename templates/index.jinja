@@ -8,16 +8,13 @@
   <link rel="stylesheet" href="./styles.css">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // 1. Raw Event Data Source
-      const eventData = {{ events | safe }};
 
-      // 2. Pre-defined Standardised Non-Intrusive Palettes (bg, border, text)
+      const eventData = {{ events | safe }};
       const colorPalettes = {{ tags | safe }};
 
-      // 3. Generate Dynamic CSS Styles targeting ALL predefined badges & Inject into <head>
+      // Generate Dynamic CSS Styles targeting ALL predefined badges & Inject into <head>
       const styleEl = document.createElement('style');
       let dynamicStyles = `
-        /* KEYBOARD FILTER FIX: Utility class to hide non-matching choices */
         .dropdown-item.hidden-item {
           display: none !important;
         }
@@ -38,7 +35,7 @@
       styleEl.innerHTML = dynamicStyles;
       document.head.appendChild(styleEl);
 
-      // 4. Define Filter Logic
+      // Define Filter Logic
       function filterEvents() {
         const checkedInputs = Array.from(document.querySelectorAll('.dropdown-item input:checked'));
         const activeTags = checkedInputs.map(el => el.value);
@@ -85,7 +82,7 @@
 
       window.filterEvents = filterEvents;
 
-      // 5. Generate Filter Dropdown Layout
+      // Generate Filter Dropdown Layout
       const dropdownContainer = document.getElementById('filterDropdown');
       if (dropdownContainer) {
         dropdownContainer.innerHTML = `
@@ -128,27 +125,7 @@
         ? window.location.origin
         : 'https://www.marcelldls.lol';
 
-      // 5. Generate Filter Dropdown Layout (and message payload)
-      const parsedTagsPayload = Object.keys(colorPalettes).map((tag) => {
-        const palette = colorPalettes[tag];
-        return {
-          id: tag,
-          // Keep it simple: use the key directly in lowercase
-          label: tag.toLowerCase(),
-          styles: `background-color: ${palette.bg}; border: 1px solid ${palette.border}; color: ${palette.text};`
-        };
-      });
-
-      window.addEventListener('message', function (event) {
-        if (event.data && event.data.type === 'PARENT_READY') {
-          window.parent.postMessage({
-            type: 'CALENDAR_RENDERED_TAGS',
-            payload: parsedTagsPayload
-          }, targetOrigin);
-        }
-      });
-
-      // 7. Initialize FullCalendar
+      // Initialize FullCalendar
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'listMonth',
@@ -233,7 +210,7 @@
 
       calendarEl.appendChild(footerContainer);
 
-      // 8. Toggle Dropdown Window Setup
+      // Toggle Dropdown Window Setup
       window.toggleDropdown = function (event) {
         event.stopPropagation();
         if (dropdownContainer) {
@@ -258,6 +235,27 @@
         }
       });
     });
+
+      // Generate message payload
+      const parsedTagsPayload = Object.keys(colorPalettes).map((tag) => {
+        const palette = colorPalettes[tag];
+        return {
+          id: tag,
+          // Keep it simple: use the key directly in lowercase
+          label: tag.toLowerCase(),
+          styles: `background-color: ${palette.bg}; border: 1px solid ${palette.border}; color: ${palette.text};`
+        };
+      });
+
+      window.addEventListener('message', function (event) {
+        if (event.data && event.data.type === 'PARENT_READY') {
+          window.parent.postMessage({
+            type: 'CALENDAR_RENDERED_TAGS',
+            payload: parsedTagsPayload
+          }, targetOrigin);
+        }
+      });
+
   </script>
 </head>
 
